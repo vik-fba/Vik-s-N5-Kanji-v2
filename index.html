@@ -1229,8 +1229,10 @@ function showSRSCard(){
     '<span class="pill pill-on">ON: '+k.on+'</span><span class="pill pill-kun">KUN: '+k.kun+'</span>';
   document.getElementById('srs-back-examples').textContent=k.ex;
   document.getElementById('srs-back-exm').textContent=k.exm;
-  const card=document.getElementById('srs-card');
+    card.style.transition='none';
   card.classList.remove('flipped');
+  void card.offsetWidth;
+  requestAnimationFrame(()=>{ card.style.transition=''; });
   srsFlipped=false;
   document.getElementById('srs-rate-btns').style.display='none';
 }
