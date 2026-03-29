@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://YOUR-USERNAME.github.io/YOUR-REPO-NAME/sitemap.xml
+Sitemap: https://vik-fba.github.io/Vik-s-N5-Kanji-v2/sitemap.xml
