@@ -1,0 +1,16 @@
+{
+  "name": "Vik's Kanji (N5)",
+  "short_name": "Vik's Kanji",
+  "description": "Free N5 kanji flashcard tool with SRS, quiz, and match modes. 118 kanji.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e1e1e",
+  "theme_color": "#c0392b",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
