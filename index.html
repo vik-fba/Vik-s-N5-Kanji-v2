@@ -1218,6 +1218,15 @@ function showSRSCard(){
   const k=srsQueue[srsCardIdx];
   const e=srsEntry(k);
   const due=srsQueue.filter((_,i)=>i>=srsCardIdx).length;
+
+  const card=document.getElementById('srs-card');
+  card.style.transition='none';
+  card.classList.remove('flipped');
+  void card.offsetWidth;
+  requestAnimationFrame(()=>{ card.style.transition=''; });
+  srsFlipped=false;
+  document.getElementById('srs-rate-btns').style.display='none';
+
   document.getElementById('srs-queue-info').textContent=due+' card'+(due===1?'':'s')+' remaining in this session';
   document.getElementById('srs-next-info').textContent=e.reps===0?'New card':'Interval: '+e.interval+' day'+(e.interval===1?'':'s');
   document.getElementById('srs-front-kanji').textContent=k.k;
@@ -1229,12 +1238,6 @@ function showSRSCard(){
     '<span class="pill pill-on">ON: '+k.on+'</span><span class="pill pill-kun">KUN: '+k.kun+'</span>';
   document.getElementById('srs-back-examples').textContent=k.ex;
   document.getElementById('srs-back-exm').textContent=k.exm;
-    card.style.transition='none';
-  card.classList.remove('flipped');
-  void card.offsetWidth;
-  requestAnimationFrame(()=>{ card.style.transition=''; });
-  srsFlipped=false;
-  document.getElementById('srs-rate-btns').style.display='none';
 }
 function flipSRS(){
   if(!srsQueue.length||srsCardIdx>=srsQueue.length)return;
