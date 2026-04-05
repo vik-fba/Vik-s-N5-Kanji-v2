@@ -21,16 +21,16 @@
   --bg-err:#3a1010;--txt-err:#f09595;--brd-err:#e24b4a;
   --bg-warn:#3a2000;--txt-warn:#fac775;--brd-warn:#ef9f27;
   --rad:8px;--radlg:12px;--font:system-ui,-apple-system,sans-serif;
-  --cat-numbers:#2a1f40;--cat-numbers-brd:#9b72cf;
-  --cat-time:#1a2040;--cat-time-brd:#6b8cde;
-  --cat-people:#40271a;--cat-people-brd:#de8b6b;
-  --cat-body:#401030;--cat-body-brd:#cc6699;
-  --cat-nature:#1a3020;--cat-nature-brd:#5faa6b;
-  --cat-actions:#402810;--cat-actions-brd:#d4952a;
-  --cat-adjectives:#401520;--cat-adjectives-brd:#cc7080;
-  --cat-directions:#103028;--cat-directions-brd:#2aaa80;
-  --cat-places:#1a3040;--cat-places-brd:#5aaacc;
-  --cat-question:#30280a;--cat-question-brd:#aa8030;
+  --cat-numbers:#18103a;--cat-numbers-brd:#a78bfa;
+  --cat-time:#001a2e;--cat-time-brd:#38bdf8;
+  --cat-people:#2e1200;--cat-people-brd:#fb923c;
+  --cat-body:#1a0020;--cat-body-brd:#e879f9;
+  --cat-nature:#001a08;--cat-nature-brd:#4ade80;
+  --cat-actions:#1a0a00;--cat-actions-brd:#fbbf24;
+  --cat-adjectives:#0a001a;--cat-adjectives-brd:#f472b6;
+  --cat-directions:#001a1a;--cat-directions-brd:#2dd4bf;
+  --cat-places:#00001a;--cat-places-brd:#818cf8;
+  --cat-question:#1a1400;--cat-question-brd:#a3e635;
 }
 
 body{font-family:var(--font);color:var(--txt1);background:var(--bg2);min-height:100vh;padding:1rem}
@@ -137,7 +137,7 @@ body{font-family:var(--font);color:var(--txt1);background:var(--bg2);min-height:
 .card-back{transform:rotateX(180deg)}
 .tap-hint{font-size:12px;color:var(--txt3);position:absolute;bottom:13px;left:0;right:0;text-align:center}
 .kanji-big{font-size:96px;line-height:1;margin-bottom:.4rem}
-.card-cat{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+.card-cat{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;display:none}
 .back-kanji{font-size:54px;line-height:1;margin-bottom:.6rem}
 .back-emoji{font-size:28px;margin-bottom:.4rem}
 .meaning{font-size:22px;font-weight:500;margin-bottom:.4rem;text-align:center}
@@ -249,7 +249,7 @@ body{font-family:var(--font);color:var(--txt1);background:var(--bg2);min-height:
     <div id="user-pill" style="display:none;background:var(--bg1);border:.5px solid var(--brd2);border-radius:50px;padding:5px 14px 5px 10px;font-size:12px;cursor:pointer;align-items:center;gap:6px">
       <span style="width:22px;height:22px;border-radius:50%;background:var(--bg-info);color:var(--txt-info);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500" id="user-avatar">?</span>
       <span id="user-name-label">Guest</span>
-      <span style="color:var(--txt3);font-size:10px;margin-left:4px" onclick="doLogout()" title="Clear profile">&times;</span>
+      <span style="color:var(--txt3);font-size:10px;margin-left:4px" onclick="renameUser(event)" title="Change name">&times;</span>
     </div>
   </div>
 
@@ -275,7 +275,7 @@ body{font-family:var(--font);color:var(--txt1);background:var(--bg2);min-height:
   <div class="filter-row" id="cat-filter-row">
     <span class="filter-label">Category:</span>
     <button class="filter-btn on" onclick="setFilter('all',this)">All</button>
-    <button class="filter-btn" onclick="setFilter('numbers',this)">Numbers</button>
+    <button class="filter-btn" onclick="setFilter('numbers',this)">Numbers / Quantities</button>
     <button class="filter-btn" onclick="setFilter('time',this)">Time</button>
     <button class="filter-btn" onclick="setFilter('people',this)">People</button>
     <button class="filter-btn" onclick="setFilter('body',this)">Body</button>
@@ -453,8 +453,10 @@ body{font-family:var(--font);color:var(--txt1);background:var(--bg2);min-height:
       <button class="btn primary" onclick="rateSRS(4)"><span>Easy</span><small id="srs-lbl-4" class="srs-lbl"></small></button>
     </div>
     <div id="srs-done" class="hidden" style="text-align:center;padding:2rem;color:var(--txt2);font-size:14px">
-      Session complete! Come back later to review due cards.
-      <br><button class="btn primary" style="margin-top:1rem" onclick="startSRS()">Restart session</button>
+      <div id="srs-done-msg">Session complete!</div>
+      <div id="srs-next-available" class="hidden" style="margin-top:.5rem;font-size:13px;color:var(--txt-ok)"></div>
+      <br>
+      <button class="btn primary" style="margin-top:1rem" onclick="startSRS()">&#9654; Start next session</button>
     </div>
   </div>
 
@@ -548,6 +550,19 @@ body{font-family:var(--font);color:var(--txt1);background:var(--bg2);min-height:
     <button class="pwa-banner-close" onclick="dismissPWA()" aria-label="Dismiss">✕</button>
   </div>
 
+  <!-- ── RENAME MODAL ── -->
+  <div id="rename-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:1001;align-items:center;justify-content:center">
+    <div style="background:var(--bg1);border-radius:var(--radlg);border:.5px solid var(--brd2);padding:1.5rem;width:90%;max-width:320px;text-align:center">
+      <div style="font-size:15px;font-weight:500;margin-bottom:.8rem">Change name</div>
+      <input type="text" id="rename-input" placeholder="New name" style="width:100%;margin-bottom:10px;padding:9px 12px;border-radius:var(--rad);border:.5px solid var(--brd2);background:var(--bg2);color:var(--txt1);font-size:14px">
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="btn primary" onclick="doRename()">Save</button>
+        <button class="btn" onclick="document.getElementById('rename-overlay').style.display='none'">Cancel</button>
+      </div>
+      <div id="rename-msg" style="font-size:12px;color:var(--txt-err);margin-top:8px;min-height:16px"></div>
+    </div>
+  </div>
+
   <!-- ── COMING SOON MODAL ── -->
   <div class="cs-overlay" id="cs-overlay" onclick="closeCS(event)">
     <div class="cs-box">
@@ -569,7 +584,7 @@ body{font-family:var(--font);color:var(--txt1);background:var(--bg2);min-height:
         ⚠️ <strong>This is a local profile only.</strong> Your data is saved in this browser on this device. It is not synced to a server and will be lost if you clear your browser data.
       </div>
       <div id="login-form">
-        <input type="text" id="login-name" placeholder="Your name (e.g. Víctor)" style="width:100%;margin-bottom:12px;padding:9px 12px;border-radius:var(--rad);border:.5px solid var(--brd2);background:var(--bg2);color:var(--txt1);font-size:14px">
+        <input type="text" id="login-name" placeholder="Your name" style="width:100%;margin-bottom:12px;padding:9px 12px;border-radius:var(--rad);border:.5px solid var(--brd2);background:var(--bg2);color:var(--txt1);font-size:14px">
         <button class="btn primary" style="width:100%;margin-bottom:10px" onclick="doLogin()">Start with this name</button>
         <button class="btn" style="width:100%;font-size:13px" onclick="continueGuest()">Continue anonymously</button>
         <div id="login-msg" style="font-size:12px;color:var(--txt-err);margin-top:8px"></div>
@@ -946,7 +961,7 @@ function newQuizRound(){
   let k,attempts=0;
   do{k=pick(deck);attempts++;}while(attempts<20&&(['1kun','3kun'].includes(chosenType)&&k.kun==='—'));
 
-  document.getElementById('q-cat').textContent=k.cat;
+  document.getElementById('q-cat').textContent=(k.cat==='numbers'?'numbers / quantities':k.cat);
   document.getElementById('q-prog').textContent='Question '+(quizQ+1)+' of '+quizTotal+' · '+quizCorrect+' correct';
 
   const stimulus=document.getElementById('q-stimulus');
@@ -964,7 +979,7 @@ function newQuizRound(){
   }
 
   function buildOpts(pool,correctVal,isKanji){
-    const opts=[correctVal,...pool.filter(v=>v!==correctVal&&v!=='—').slice(0,3)];
+    const opts=[correctVal,...pool.filter(v=>v!==correctVal&&v!=='—').slice(0,10)];
     // pad if needed
     while(opts.length<4){opts.push('？');}
     opts.slice(0,4).sort(()=>Math.random()-.5).forEach(o=>makeBtn(o,isKanji,o===correctVal));
@@ -1207,6 +1222,7 @@ function saveSession(){
       lastIdx:idx,
       lastCat:filterCat,
       lastDeckFilter:deckFilter,
+      srsNewToday:srsNewToday,
     }));
   }catch(e){}
 }
@@ -1243,17 +1259,23 @@ function loadSession(){
       },0);
     }
     if(typeof d.lastIdx==='number'&&d.lastIdx<deck.length) idx=d.lastIdx;
+    if(d.srsNewToday&&d.srsNewToday.date===srsToday()) srsNewToday=d.srsNewToday;
   }catch(e){}
 }
 
 function resetProgress(){
+  console.log('[RESET] resetProgress called');
   if(!confirm('Reset all progress? This will clear all Got it / Still learning / SRS data. This cannot be undone.'))return;
   known=new Set();learning=new Set();
   Object.keys(srsData).forEach(k=>delete srsData[k]);
+  srsNewToday={date:'',count:0};
+  srsQueue=[];srsCardIdx=0;
   customKanji=new Set();
   saveSession();
+  console.log('[RESET] done clearing');
   updateStats();updateDeckFilterCounts();
   if(mode==='list')renderMosaic();
+  if(mode==='srs')startSRS();
   const btn=document.querySelector('[onclick="resetProgress()"]');
   if(btn){const orig=btn.textContent;btn.textContent='✓ Reset!';setTimeout(()=>btn.textContent=orig,2000);}
 }
@@ -1274,255 +1296,388 @@ function manualSave(){
 }
 
 /* ── SRS DATA ───────────────────────────────────────────────── */
-/* ── SRS ENGINE (Anki-style) ────────────────────────────────────
-   Card states: 'new' | 'learning' | 'review'
-   Learning steps (minutes): 1, 10  — like Anki defaults
-   Graduating interval: 1 day
-   Easy interval: 4 days
-   Each entry: { state, step, interval, ease, due, lapses, lastReview }
-   due = ISO date string "YYYY-MM-DD" (day-granular, no timezone bugs)
-   Learning cards use due as a timestamp (ms) for sub-day scheduling
+/* ── SRS ENGINE ─────────────────────────────────────────────────
+   Anki-style spaced repetition. Card lifecycle:
+
+   new ──(Good/Hard)──▶ learning ──(graduate)──▶ review
+    │                                                │
+    └──(Easy)──────────────────────────────▶        │
+                                            lapse ──▶ relearning ──▶ review
+
+   STATES:   'new' | 'learning' | 'review' | 'relearning'
+   LEARNING STEPS: [1m, 10m]  — sub-day, stored as ms timestamp
+   REVIEW dues:    YYYY-MM-DD  — day-granular, timezone-safe
+   DAILY TRACKING: srsNewToday{date,count} — cap 10 new/day
 ─────────────────────────────────────────────────────────────── */
-const SRS_LEARN_STEPS=[1,10];      // minutes
-const SRS_GRAD_INTERVAL=1;         // days after graduating
-const SRS_EASY_INTERVAL=4;         // days for Easy on new card
-const SRS_INIT_EASE=2.5;
-const SRS_MIN_EASE=1.3;
-const SRS_EASY_BONUS=1.3;
 
-const srsData={};
-let srsQueue=[],srsCardIdx=0,srsFlipped=false;
+// ── Constants ──────────────────────────────────────────────────
+const SRS_LEARN_STEPS    = [1, 10];   // learning step durations (minutes)
+const SRS_RELEARN_STEPS  = [10];      // relearning steps after lapse (minutes)
+const SRS_GRAD_INTERVAL  = 1;         // days: Good graduates to
+const SRS_EASY_INTERVAL  = 4;         // days: Easy graduates to / Easy bonus on review
+const SRS_INIT_EASE      = 2.5;       // starting ease factor
+const SRS_MIN_EASE       = 1.3;       // ease floor
+const SRS_EASY_BONUS     = 1.3;       // multiplier bonus for Easy on reviews
+const SRS_HARD_FACTOR    = 1.2;       // multiplier for Hard on reviews
+const SRS_NEW_PER_DAY    = 10;        // max new cards per calendar day
 
-/* Get today as YYYY-MM-DD in local time (timezone-safe) */
-function srsToday(){
-  const d=new Date();
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+// ── Runtime state ──────────────────────────────────────────────
+const srsData = {};            // per-kanji SRS records
+let srsQueue     = [];         // ordered queue for this session
+let srsCardIdx   = 0;          // pointer into srsQueue
+let srsFlipped   = false;      // whether current card is flipped
+let srsNewToday  = { date: '', count: 0 }; // daily new-card tracker
+
+// ── Date helpers ───────────────────────────────────────────────
+function srsToday() {
+  const d = new Date();
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
 }
-function srsDateFromStr(s){
-  const [y,m,d]=s.split('-').map(Number);
-  return new Date(y,m-1,d);
+function srsDateFromStr(s) {
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, m - 1, d);
 }
-function srsDaysUntil(dateStr){
-  const today=srsDateFromStr(srsToday());
-  const due=srsDateFromStr(dateStr);
-  return Math.round((due-today)/(86400000));
+function srsAddDays(n) {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+function srsDaysUntil(dateStr) {
+  const today = srsDateFromStr(srsToday());
+  const due   = srsDateFromStr(dateStr);
+  return Math.round((due - today) / 86400000);
 }
 
-/* Initialise a card entry */
-function srsEntry(k){
-  if(!srsData[k.k]){
-    srsData[k.k]={
-      state:'new',    // 'new'|'learning'|'review'
-      step:0,         // index into SRS_LEARN_STEPS (learning only)
-      interval:0,     // days (review only)
-      ease:SRS_INIT_EASE,
-      due:null,       // YYYY-MM-DD for review; ms timestamp for learning
-      lapses:0,
-      lastReview:null
+// ── Card entry initialiser ─────────────────────────────────────
+function srsEntry(k) {
+  if (!srsData[k.k]) {
+    srsData[k.k] = {
+      state: 'new',        // new | learning | review | relearning
+      step: 0,             // index into current step array
+      interval: 0,         // days (review/relearning only)
+      ease: SRS_INIT_EASE,
+      due: null,           // ms timestamp (learning/relearning) or YYYY-MM-DD (review)
+      lapses: 0,
+      lastReview: null
     };
   }
   return srsData[k.k];
 }
 
-/* Is a card due today or overdue? */
-function srsIsDue(k){
-  const e=srsEntry(k);
-  if(e.state==='new') return false; // new cards handled separately
-  if(e.state==='learning'){
-    return e.due!==null && Date.now()>=e.due;
+// ── Due check ──────────────────────────────────────────────────
+function srsIsDue(k) {
+  const e = srsEntry(k);
+  if (e.state === 'new') return false;
+  if (e.state === 'learning' || e.state === 'relearning') {
+    return e.due !== null && Date.now() >= e.due;
   }
-  // review: compare date strings
-  return e.due!==null && e.due<=srsToday();
+  // review: date string comparison
+  return e.due !== null && e.due <= srsToday();
 }
 
-/* Count due cards for the info panel */
-function srsCounts(){
-  const base=deck;
-  let newCount=0,learnCount=0,reviewCount=0;
-  base.forEach(k=>{
-    const e=srsData[k.k];
-    if(!e||e.state==='new') newCount++;
-    else if(e.state==='learning'&&srsIsDue(k)) learnCount++;
-    else if(e.state==='review'&&srsIsDue(k)) reviewCount++;
+// ── Daily new-card quota ───────────────────────────────────────
+function srsNewAllowance() {
+  const today = srsToday();
+  if (srsNewToday.date !== today) {
+    srsNewToday = { date: today, count: 0 };
+  }
+  return SRS_NEW_PER_DAY - srsNewToday.count;
+}
+function srsConsumeNew() {
+  const today = srsToday();
+  if (srsNewToday.date !== today) srsNewToday = { date: today, count: 0 };
+  srsNewToday.count++;
+}
+
+// ── Session queue builder ──────────────────────────────────────
+function buildSRSQueue() {
+  var dueLearning = deck.filter(function(k) {
+    var e = srsData[k.k];
+    return e && (e.state==='learning'||e.state==='relearning') && srsIsDue(k);
   });
-  return {newCount,learnCount,reviewCount};
+  var dueReview = deck.filter(function(k) {
+    var e = srsData[k.k];
+    return e && e.state==='review' && srsIsDue(k);
+  });
+  var newCards = deck
+    .filter(function(k){ return !srsData[k.k]||srsData[k.k].state==='new'; })
+    .slice(0, SRS_NEW_PER_DAY);
+  srsQueue = [].concat(dueLearning, dueReview, newCards);
+  srsCardIdx = 0;
 }
 
-/* Build today's queue: learning due + review due + new (capped at 20/day) */
-function buildSRSQueue(){
-  const learning=deck.filter(k=>{ const e=srsData[k.k]; return e&&e.state==='learning'&&srsIsDue(k); });
-  const review=deck.filter(k=>{ const e=srsData[k.k]; return e&&e.state==='review'&&srsIsDue(k); });
-  const newCards=deck.filter(k=>!srsData[k.k]||srsData[k.k].state==='new').slice(0,20);
-  srsQueue=[...learning,...review,...newCards];
-  srsCardIdx=0;
+// ── Counts for info bar (reflects current deck, not just queue) ─
+function srsCounts() {
+  const today = srsToday();
+  let newC = 0, learnC = 0, reviewC = 0;
+  deck.forEach(k => {
+    const e = srsData[k.k];
+    if (!e || e.state === 'new') {
+      newC++;
+    } else if (e.state === 'learning' || e.state === 'relearning') {
+      // Count all learning cards — due now or coming up soon this session
+      learnC++;
+    } else if (e.state === 'review' && e.due <= today) {
+      reviewC++;
+    }
+  });
+  // Cap new count at today's remaining allowance
+  newC = Math.min(newC, srsNewAllowance());
+  return { newC, learnC, reviewC };
 }
 
-function startSRS(){
+// ── Info bar renderer ──────────────────────────────────────────
+function updateSRSInfo() {
+  var remaining = 0;
+  for (var ri = srsCardIdx; ri < srsQueue.length; ri++) {
+    var ek = srsEntry(srsQueue[ri]);
+    var isSubDay = ek.state === 'learning' || ek.state === 'relearning';
+    if (!isSubDay || srsIsDue(srsQueue[ri])) remaining++;
+  }
+  const c = srsCounts();
+  var waitStr = '';
+  if (remaining === 0) {
+    var wt = srsNextDueIn();
+    if (wt) waitStr = '  ·  next in ' + wt;
+  }
+  document.getElementById('srs-queue-info').textContent =
+    remaining + ' remaining' + waitStr + '  ·  ' +
+    c.newC + ' new  ·  ' +
+    c.learnC + ' learning  ·  ' +
+    c.reviewC + ' review';
+}
+
+// ── Start / restart session ────────────────────────────────────
+function startSRS() {
+  console.log("[SRS] startSRS called. mode="+mode+" deck="+deck.length+" srsData keys="+Object.keys(srsData).length);
+  srsNewToday = { date: srsToday(), count: 0 };
   buildSRSQueue();
-  updateSRSInfo();
+  console.log("[SRS] queue built:", srsQueue.length, "cards");
+  srsQueue.slice(0,5).forEach(function(k,i){var e=srsData[k.k]||{state:"new"};console.log("  ["+i+"]",k.k,e.state,e.due);});
   document.getElementById('srs-done').classList.add('hidden');
   document.getElementById('srs-card').classList.remove('hidden');
   document.getElementById('srs-rate-btns').style.display='none';
-  if(!srsQueue.length){
-    document.getElementById('srs-done').classList.remove('hidden');
-    document.getElementById('srs-card').classList.add('hidden');
-    return;
-  }
+  if (srsQueue.length===0) { console.log("[SRS] queue empty -> showSRSDone"); showSRSDone(); return; }
   showSRSCard();
 }
 
-function updateSRSInfo(){
-  const c=srsCounts();
-  const remaining=srsQueue.filter((_,i)=>i>=srsCardIdx).length;
-  document.getElementById('srs-queue-info').textContent=
-    remaining+' card'+(remaining===1?'':'s')+' remaining  ·  '+
-    c.newCount+' new  ·  '+c.learnCount+' learning  ·  '+c.reviewCount+' review';
+// ── Done screen ────────────────────────────────────────────────
+// Returns "Xm Ys" until the next pending learning card is due, or null
+function srsNextDueIn() { return null; }
+
+function srsClearCountdown() {
+  if (window._srsTimer) { clearInterval(window._srsTimer); window._srsTimer = null; }
 }
 
-function showSRSCard(){
-  if(srsCardIdx>=srsQueue.length){
-    document.getElementById('srs-done').classList.remove('hidden');
-    document.getElementById('srs-card').classList.add('hidden');
-    document.getElementById('srs-rate-btns').style.display='none';
-    return;
+function showSRSDone() {
+  document.getElementById('srs-done').classList.remove('hidden');
+  document.getElementById('srs-card').classList.add('hidden');
+  document.getElementById('srs-rate-btns').style.display = 'none';
+  var c = srsCounts();
+  var msgEl  = document.getElementById('srs-done-msg');
+  var nextEl = document.getElementById('srs-next-available');
+  var hasMore = c.learnC > 0 || c.reviewC > 0 || c.newC > 0;
+  if (hasMore) {
+    msgEl.textContent = 'Session done!';
+    var parts = [];
+    if (c.learnC  > 0) parts.push(c.learnC  + ' learning');
+    if (c.reviewC > 0) parts.push(c.reviewC + ' review' + (c.reviewC===1?'':'s'));
+    if (c.newC    > 0) parts.push(c.newC    + ' new');
+    nextEl.textContent = 'Next session: ' + parts.join(' + ');
+    nextEl.classList.remove('hidden');
+  } else {
+    msgEl.textContent = 'All done for now!';
+    nextEl.classList.add('hidden');
   }
-  const k=srsQueue[srsCardIdx];
-  const e=srsEntry(k);
+}
+
+// ── Show current card ──────────────────────────────────────────
+function showSRSCard() {
+  if (srsCardIdx >= srsQueue.length) { showSRSDone(); return; }
+  var k = srsQueue[srsCardIdx];
+  var e = srsEntry(k);
   updateSRSInfo();
-  // Card type label
-  let typeLabel='New card';
-  if(e.state==='learning') typeLabel='Learning';
-  else if(e.state==='review'){
-    const days=srsDaysUntil(e.due);
-    typeLabel='Review'+(days<0?' (overdue '+Math.abs(days)+'d)':'');
-  }
-  document.getElementById('srs-next-info').textContent=typeLabel;
+  var tl='New';
+  if (e.state==='learning')   tl='Learning';
+  if (e.state==='relearning') tl='Relearning';
+  if (e.state==='review') { var od=srsDaysUntil(e.due); tl='Review'+(od<0?' ('+Math.abs(od)+'n overdue)':'  '); }
+  document.getElementById('srs-next-info').textContent=tl;
   document.getElementById('srs-front-kanji').textContent=k.k;
-  document.getElementById('srs-front-cat').textContent=k.cat;
+  document.getElementById('srs-front-cat').textContent=(k.cat==='numbers'?'numbers / quantities':k.cat);
   document.getElementById('srs-back-emoji').textContent=k.emoji;
   document.getElementById('srs-back-kanji').textContent=k.k;
   document.getElementById('srs-back-meaning').textContent=k.mean;
-  document.getElementById('srs-back-readings').innerHTML=
-    '<span class="pill pill-on">ON: '+k.on+'</span><span class="pill pill-kun">KUN: '+k.kun+'</span>';
+  document.getElementById('srs-back-readings').innerHTML='<span class="pill pill-on">ON: '+k.on+'</span><span class="pill pill-kun">KUN: '+k.kun+'</span>';
   document.getElementById('srs-back-examples').textContent=k.ex;
   document.getElementById('srs-back-exm').textContent=k.exm;
-  const card=document.getElementById('srs-card');
-  card.style.transition='none';
-  card.classList.remove('flipped');
+  var card=document.getElementById('srs-card');
+  card.style.transition='none'; card.classList.remove('flipped');
   void card.offsetWidth;
-  requestAnimationFrame(()=>{card.style.transition='';});
+  requestAnimationFrame(function(){card.style.transition='';});
   srsFlipped=false;
   document.getElementById('srs-rate-btns').style.display='none';
 }
 
-function flipSRS(){
-  if(!srsQueue.length||srsCardIdx>=srsQueue.length)return;
-  srsFlipped=!srsFlipped;
-  document.getElementById('srs-card').classList.toggle('flipped',srsFlipped);
-  document.getElementById('srs-rate-btns').style.display=srsFlipped?'flex':'none';
-  if(srsFlipped){sfxFlip();updateSRSLabels();}
+// ── Flip ───────────────────────────────────────────────────────
+function flipSRS() {
+  if (!srsQueue.length || srsCardIdx >= srsQueue.length) return;
+  srsFlipped = !srsFlipped;
+  document.getElementById('srs-card').classList.toggle('flipped', srsFlipped);
+  document.getElementById('srs-rate-btns').style.display = srsFlipped ? 'flex' : 'none';
+  if (srsFlipped) { sfxFlip(); updateSRSLabels(); }
 }
 
-/* Format an interval for button labels */
-function srsFmtInterval(val,unit){
-  if(unit==='min') return val<60?val+'m':Math.round(val/60)+'h';
-  if(val===0)      return '<1m';
-  if(val===1)      return '1d';
-  if(val<30)       return val+'d';
-  if(val<365)      return Math.round(val/30)+'mo';
-  return Math.round(val/365)+'yr';
+// ── Interval formatter ─────────────────────────────────────────
+// unit: 'min' | 'day'
+function srsFmtInterval(val, unit) {
+  if (unit === 'min') return val < 60 ? val + 'm' : Math.round(val / 60) + 'h';
+  // 'day' — use 'n' (next) not 'd' (day) per design intent
+  if (val === 0) return '<1m';
+  if (val  <  30) return val + 'n';
+  if (val  < 365) return Math.round(val / 30) + 'mo';
+  return Math.round(val / 365) + 'yr';
 }
 
-/* Preview what each button will schedule */
-function srsPreviewLabel(e,rating){
-  if(e.state==='new'||e.state==='learning'){
-    if(rating===1){ return srsFmtInterval(SRS_LEARN_STEPS[0],'min'); }
-    if(rating===2){ // Hard: repeat current step
-      const step=SRS_LEARN_STEPS[Math.min(e.step,SRS_LEARN_STEPS.length-1)];
-      return srsFmtInterval(step,'min');
+// ── Next-interval preview for each button ─────────────────────
+function srsPreviewLabel(e, rating) {
+  const steps   = (e.state === 'relearning') ? SRS_RELEARN_STEPS : SRS_LEARN_STEPS;
+  const curStep = (e.state === 'new') ? 0 : e.step;
+
+  if (e.state === 'new' || e.state === 'learning' || e.state === 'relearning') {
+    if (rating === 1) {
+      // Again → back to step 0 of current phase
+      return srsFmtInterval(steps[0], 'min');
     }
-    if(rating===3){ // Good: advance step or graduate
-      if(e.state==='learning'&&e.step<SRS_LEARN_STEPS.length-1){
-        return srsFmtInterval(SRS_LEARN_STEPS[e.step+1],'min');
+    if (rating === 2) {
+      // Hard → repeat current step
+      return srsFmtInterval(steps[Math.min(curStep, steps.length - 1)], 'min');
+    }
+    if (rating === 3) {
+      // Good → advance step or graduate
+      if (curStep < steps.length - 1) {
+        return srsFmtInterval(steps[curStep + 1], 'min');
       }
-      return srsFmtInterval(SRS_GRAD_INTERVAL,'day');
+      return srsFmtInterval(SRS_GRAD_INTERVAL, 'day');
     }
-    if(rating===4){ return srsFmtInterval(SRS_EASY_INTERVAL,'day'); }
-  } else { // review
-    if(rating===1){ return srsFmtInterval(SRS_LEARN_STEPS[0],'min'); }
-    const iv=Math.max(1,Math.round(
-      rating===2 ? e.interval*1.2
-    : rating===3 ? e.interval*e.ease
-    :              e.interval*e.ease*SRS_EASY_BONUS
-    ));
-    return srsFmtInterval(iv,'day');
+    if (rating === 4) {
+      // Easy → graduate immediately
+      if (e.state === 'relearning') {
+        return srsFmtInterval(Math.max(1, Math.round(e.interval * SRS_EASY_BONUS)), 'day');
+      }
+      return srsFmtInterval(SRS_EASY_INTERVAL, 'day');
+    }
   }
+
+  // Review card
+  if (rating === 1) return srsFmtInterval(SRS_RELEARN_STEPS[0], 'min');
+  const iv = Math.max(1, Math.round(
+    rating === 2 ? e.interval * SRS_HARD_FACTOR
+  : rating === 3 ? e.interval * e.ease
+  :                e.interval * e.ease * SRS_EASY_BONUS
+  ));
+  return srsFmtInterval(iv, 'day');
 }
 
-function updateSRSLabels(){
-  if(!srsQueue.length||srsCardIdx>=srsQueue.length) return;
-  const e=srsEntry(srsQueue[srsCardIdx]);
-  [1,2,3,4].forEach(r=>{
-    const lbl=document.getElementById('srs-lbl-'+r);
-    if(lbl) lbl.textContent=srsPreviewLabel(e,r);
+// ── Update button labels ───────────────────────────────────────
+function updateSRSLabels() {
+  if (!srsQueue.length || srsCardIdx >= srsQueue.length) return;
+  const e = srsEntry(srsQueue[srsCardIdx]);
+  [1, 2, 3, 4].forEach(r => {
+    const lbl = document.getElementById('srs-lbl-' + r);
+    if (lbl) lbl.textContent = srsPreviewLabel(e, r);
   });
 }
 
-/* Add days to today, return YYYY-MM-DD */
-function srsAddDays(days){
-  const d=new Date();
-  d.setDate(d.getDate()+days);
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-}
+// ── Schedule card after rating ─────────────────────────────────
+function rateSRS(rating) {
+  if (srsCardIdx >= srsQueue.length) return;
+  const k = srsQueue[srsCardIdx];
+  const e = srsEntry(k);
+  e.lastReview = srsToday();
 
-function rateSRS(rating){
-  const k=srsQueue[srsCardIdx];
-  const e=srsEntry(k);
-  e.lastReview=srsToday();
+  const isLearningPhase =
+    e.state === 'new' || e.state === 'learning' || e.state === 'relearning';
+  const steps = (e.state === 'relearning') ? SRS_RELEARN_STEPS : SRS_LEARN_STEPS;
+  // Treat 'new' as learning step 0 — consume daily quota on first answer
+  if (e.state === 'new') {
+    e.state = 'learning';
+    e.step = 0;
+    srsConsumeNew(); // count this card against today's new-card limit
+  }
+  const curStep = e.step;
 
-  if(e.state==='new'||e.state==='learning'){
-    if(rating===1){ // Again — restart from step 0
-      e.state='learning'; e.step=0;
-      e.due=Date.now()+SRS_LEARN_STEPS[0]*60000;
-      srsQueue.push(k); // re-add to session
-    } else if(rating===2){ // Hard — repeat current step
-      e.state='learning';
-      const step=SRS_LEARN_STEPS[Math.min(e.step,SRS_LEARN_STEPS.length-1)];
-      e.due=Date.now()+step*60000;
+  var wasRelearning = (e.state === 'relearning');
+  if (isLearningPhase) {
+    if (rating === 1) {
+      // Again → restart from step 0
+      e.state = wasRelearning ? 'relearning' : 'learning';
+      e.step  = 0;
+      e.due   = Date.now() + steps[0] * 60000;
       srsQueue.push(k);
-    } else if(rating===3){ // Good — advance step or graduate
-      if(e.state==='learning'&&e.step<SRS_LEARN_STEPS.length-1){
-        e.step++;
-        e.due=Date.now()+SRS_LEARN_STEPS[e.step]*60000;
+
+    } else if (rating === 2) {
+      // Hard → repeat current step (no progress)
+      e.step  = curStep; // stay on same step
+      e.due   = Date.now() + steps[Math.min(curStep, steps.length - 1)] * 60000;
+      srsQueue.push(k);
+
+    } else if (rating === 3) {
+      // Good → advance to next step or graduate
+      if (curStep < steps.length - 1) {
+        e.step  = curStep + 1;
+        e.due   = Date.now() + steps[e.step] * 60000;
         srsQueue.push(k);
       } else {
         // Graduate to review
-        e.state='review'; e.interval=SRS_GRAD_INTERVAL;
-        e.due=srsAddDays(SRS_GRAD_INTERVAL);
+        e.state    = 'review';
+        e.interval = SRS_GRAD_INTERVAL;
+        e.due      = srsAddDays(SRS_GRAD_INTERVAL);
       }
-    } else { // Easy — graduate immediately with easy interval
-      e.state='review'; e.interval=SRS_EASY_INTERVAL;
-      e.ease=Math.min(3,e.ease+0.15);
-      e.due=srsAddDays(SRS_EASY_INTERVAL);
-    }
-  } else { // review card
-    if(rating===1){ // Again — lapse back to learning
-      e.lapses++;
-      e.ease=Math.max(SRS_MIN_EASE,e.ease-0.2);
-      e.interval=Math.max(1,Math.round(e.interval*0.5));
-      e.state='learning'; e.step=0;
-      e.due=Date.now()+SRS_LEARN_STEPS[0]*60000;
-      srsQueue.push(k);
+
     } else {
-      const iv=Math.max(1,Math.round(
-        rating===2 ? e.interval*1.2
-      : rating===3 ? e.interval*e.ease
-      :              e.interval*e.ease*SRS_EASY_BONUS
-      ));
-      if(rating===2) e.ease=Math.max(SRS_MIN_EASE,e.ease-0.15);
-      if(rating===4) e.ease=Math.min(3,e.ease+0.15);
-      e.interval=iv;
-      e.due=srsAddDays(iv);
+      // Easy → graduate immediately with larger interval
+      e.state = 'review';
+      if (wasRelearning) {
+        // Relearning easy: boost current interval
+        e.interval = Math.max(1, Math.round(e.interval * SRS_EASY_BONUS));
+      } else {
+        // New/learning easy: jump to easy interval
+        e.interval = SRS_EASY_INTERVAL;
+        e.ease     = Math.min(3, e.ease + 0.15);
+      }
+      e.due = srsAddDays(e.interval);
+    }
+
+  } else {
+    // ── Review card ────────────────────────────────────────────
+    if (rating === 1) {
+      // Again → lapse into relearning
+      e.lapses++;
+      e.ease     = Math.max(SRS_MIN_EASE, e.ease - 0.2);
+      e.interval = Math.max(1, Math.round(e.interval * 0.5));
+      e.state    = 'relearning';
+      e.step     = 0;
+      e.due      = Date.now() + SRS_RELEARN_STEPS[0] * 60000;
+      srsQueue.push(k);
+
+    } else {
+      // Hard / Good / Easy
+      var iv;
+      if (rating === 2) {
+        iv = Math.max(e.interval + 1, Math.round(e.interval * SRS_HARD_FACTOR));
+        e.ease = Math.max(SRS_MIN_EASE, e.ease - 0.15);
+      } else if (rating === 3) {
+        iv = Math.max(e.interval + 1, Math.round(e.interval * e.ease));
+      } else {
+        iv = Math.max(e.interval + 1, Math.round(e.interval * e.ease * SRS_EASY_BONUS));
+        e.ease = Math.min(3, e.ease + 0.15);
+      }
+      e.interval = iv;
+      e.due      = srsAddDays(iv);
     }
   }
 
@@ -1808,6 +1963,26 @@ function doLogout(){
   try{localStorage.removeItem(SESSION_KEY);}catch(e){}
   document.getElementById('user-pill').style.display='none';
 }
+function renameUser(evt){
+  evt.stopPropagation(); // don't trigger pill click
+  const overlay=document.getElementById('rename-overlay');
+  const input=document.getElementById('rename-input');
+  if(input) input.value='';
+  document.getElementById('rename-msg').textContent='';
+  overlay.style.display='flex';
+  if(input) setTimeout(()=>input.focus(),50);
+}
+function doRename(){
+  const input=document.getElementById('rename-input');
+  const name=(input?input.value.trim():'');
+  if(!name){document.getElementById('rename-msg').textContent='Please enter a name.';return;}
+  // Keep all existing progress — just update the display name
+  currentUser={name};
+  try{localStorage.setItem(SESSION_KEY,JSON.stringify(currentUser));}catch(e){}
+  document.getElementById('user-avatar').textContent=name[0].toUpperCase();
+  document.getElementById('user-name-label').textContent=name;
+  document.getElementById('rename-overlay').style.display='none';
+}
 function closeLogin(){
   document.getElementById('login-overlay').style.display='none';
   if(currentUser){
@@ -1941,7 +2116,7 @@ function showCard(){
   card.classList.remove('flipped');
   void card.offsetWidth;
   document.getElementById('front-kanji').textContent=k.k;
-  document.getElementById('front-cat').textContent=k.cat;
+  document.getElementById('front-cat').textContent=(k.cat==='numbers'?'numbers / quantities':k.cat);
   document.getElementById('back-emoji').textContent=k.emoji;
   document.getElementById('back-kanji').textContent=k.k;
   document.getElementById('back-meaning').textContent=k.mean;
@@ -1994,10 +2169,12 @@ initPWA();
 
 /* ── SERVICE WORKER REGISTRATION ─────────────────────────── */
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').then(reg=>{
-    console.log('SW registered:', reg.scope);
-  }).catch(err=>{
-    console.log('SW registration skipped (open as file):', err.message);
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').then(reg=>{
+      console.log('SW registered:', reg.scope);
+    }).catch(err=>{
+      console.log('SW registration failed (open as file):', err.message);
+    });
   });
 }
 </script>
