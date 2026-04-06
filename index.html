@@ -107,8 +107,7 @@ body{font-family:var(--font);color:var(--txt1);background:var(--bg2);min-height:
 #custom-panel{display:none}
 
 /* PWA install banner */
-.pwa-banner{position:fixed;bottom:0;left:0;right:0;background:var(--bg1);border-top:.5px solid var(--brd2);
-  padding:12px 16px;display:flex;align-items:center;gap:12px;z-index:900;box-shadow:0 -4px 20px rgba(0,0,0,.15)}
+.pwa-banner{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:500px;background:var(--bg1);border:.5px solid var(--brd2);border-radius:var(--radlg);padding:12px 16px;display:flex;align-items:center;gap:12px;z-index:900;box-shadow:0 4px 24px rgba(0,0,0,.35);animation:slideUp .3s ease}
 .pwa-banner.hidden{display:none}
 .pwa-banner-icon{font-size:28px;flex-shrink:0}
 .pwa-banner-text{flex:1;min-width:0}
@@ -493,7 +492,7 @@ body{font-family:var(--font);color:var(--txt1);background:var(--bg2);min-height:
     <p>This N5 kanji tool was made with the intention of helping you learn the N5 kanji in a fun and efficient way.</p>
     <p style="margin-top:.6rem;font-weight:500;font-size:13px;color:var(--txt1)">More kanji levels:</p>
     <p style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.2rem">
-      <a href="#" class="level-link" onclick="showCS('N4 Kanji','The N4 kanji tool is currently in development.');return false;">N4 Kanji</a>
+      <a href="https://vik-fba.github.io/Vik-s-N4-Kanji/" class="level-link" target="_blank" rel="noopener">N4 Kanji</a>
       <a href="#" class="level-link" onclick="showCS('N3 Kanji','The N3 kanji tool is currently in development.');return false;">N3 Kanji</a>
       <a href="#" class="level-link" onclick="showCS('N2 Kanji','The N2 kanji tool is currently in development.');return false;">N2 Kanji</a>
       <a href="#" class="level-link" onclick="showCS('N1 Kanji','The N1 kanji tool is currently in development.');return false;">N1 Kanji</a>
@@ -536,6 +535,8 @@ body{font-family:var(--font);color:var(--txt1);background:var(--bg2);min-height:
   </div><!-- /donate-body -->
   </div>
 
+
+
   <div class="footer">
     Made with &#10084; by <strong>Víctor Fernández Bravo Ahuja</strong> &nbsp;·&nbsp; Vik's Kanji (N5) &nbsp;·&nbsp; 118 kanji
   </div>
@@ -545,9 +546,9 @@ body{font-family:var(--font);color:var(--txt1);background:var(--bg2);min-height:
     <div class="pwa-banner-icon">📱</div>
     <div class="pwa-banner-text">
       <strong>Add to Home Screen</strong>
-      <span id="pwa-banner-msg">Tap Share → "Add to Home Screen" in Safari</span>
+      <span id="pwa-banner-msg"></span>
     </div>
-    <button class="pwa-banner-close" onclick="dismissPWA()" aria-label="Dismiss">✕</button>
+    <button class="pwa-banner-close" onclick="dismissPWA()" aria-label="Close" title="Close">&#x2715;</button>
   </div>
 
   <!-- ── RENAME MODAL ── -->
@@ -2085,26 +2086,27 @@ function shareApp(){
 
 /* ── PWA INSTALL BANNER ─────────────────────────────────────── */
 function initPWA(){
-  if(localStorage.getItem('pwa_dismissed'))return;
+  // Clear old dismissed flag so banner can show again
+  localStorage.removeItem('pwa_dismissed');
   const banner=document.getElementById('pwa-banner');
   const msg=document.getElementById('pwa-banner-msg');
   const ua=navigator.userAgent;
   const isIOS=/iPad|iPhone|iPod/.test(ua)&&!window.MSStream;
   const isAndroid=/Android/.test(ua);
   const isStandalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
-  if(isStandalone)return; // already installed
+  if(isStandalone)return;
   if(isIOS){
-    msg.textContent='Tap the Share button ↑ then "Add to Home Screen"';
-    banner.classList.remove('hidden');
+    msg.innerHTML='Tap the Share button <strong>⎋</strong> in Safari → <strong>"Add to Home Screen"</strong>';
   } else if(isAndroid){
-    msg.textContent='Tap the menu ⋮ then "Add to Home Screen" or "Install app"';
-    banner.classList.remove('hidden');
+    msg.innerHTML='Tap the menu <strong>⋮</strong> in Chrome → <strong>"Add to Home Screen"</strong> or <strong>"Install app"</strong>';
+  } else {
+    msg.innerHTML='Open in Chrome or Safari on your phone and tap <strong>"Add to Home Screen"</strong>';
   }
-  // Desktop: skip (not as useful)
+  // Delay slightly so it does not appear instantly on load
+  setTimeout(function(){ banner.classList.remove('hidden'); }, 1500);
 }
 function dismissPWA(){
   document.getElementById('pwa-banner').classList.add('hidden');
-  localStorage.setItem('pwa_dismissed','1');
 }
 
 /* ── CARD STATUS OUTLINES ────────────────────────────────────── */
